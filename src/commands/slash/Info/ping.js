@@ -1,5 +1,6 @@
 const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const ExtendedClient = require('../../../class/ExtendedClient');
+const Config = require('../../../config');
 
 module.exports = {
     structure: new SlashCommandBuilder()
@@ -29,8 +30,8 @@ module.exports = {
 
             const pingEmbed = new EmbedBuilder()
             .setTitle("Pong!")
+            .setColor(Config.colors.default)
             .setDescription(`${randomAnswer} ${client.ws.ping}ms`)
-    
             await interaction.reply({
                 embeds: [pingEmbed]
             });
@@ -39,6 +40,9 @@ module.exports = {
                 content: `Uh oh! Something went wrong, err: ${error}`,
                 ephemeral: true
             })
+
+            log(`Whoops! An error occured in ${__filename}. Error: ${error}`, 'err');
+            return;
         }
     }
 };

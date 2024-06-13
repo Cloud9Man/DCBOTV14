@@ -2,6 +2,8 @@ const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = requi
 const ExtendedClient = require('../../../class/ExtendedClient');
 const config = require('../../../config');
 
+const { log } = require('../../../functions');
+
 module.exports = {
     structure: new SlashCommandBuilder()
         .setName('8ball')
@@ -19,7 +21,6 @@ module.exports = {
      * @param {ChatInputCommandInteraction} interaction 
      */
     run: async (client, interaction) => {
-
         answers = [
             'It is certain.',
             'It is decidedly so.',
@@ -56,10 +57,13 @@ module.exports = {
 
         actions = [
             'threw the magic 8ball on the ground, and it annoyed the 8ball.',
-            'just shook the 8ball',
-            'gave the 8ball a big smooch',
+            'wrote a poem with the 8ball.',
+            'ghosted the 8ball when texting.',
+            'friendzoned the 8ball, womp womp.',
+            'just shook the 8ball.',
+            'gave the 8ball a big smooch.',
             'threw the 8ball across the room and shattered it, no reply for you!',
-            'hung out with the 8ball and gained its trust'
+            'hung out with the 8ball and gained its trust.'
         ]
 
         try {
@@ -92,8 +96,9 @@ module.exports = {
                     embeds: [eballembed]
                 });
             }
-        } catch (err) {
-
+        } catch (error) {
+            log(`Whoops! An error occured in ${__filename}. Error: ${error}`, 'err');
+            return;
         }
     }
 };

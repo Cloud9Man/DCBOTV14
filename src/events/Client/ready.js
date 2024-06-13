@@ -1,7 +1,9 @@
 const { log } = require("../../functions");
 const ExtendedClient = require("../../class/ExtendedClient");
 const { ActivityType, EmbedBuilder } = require("discord.js");
-const config = require("../../config")
+const config = require("../../config");
+
+const StartedSchema = require("../../schemas/StartedSchema");
 
 module.exports = {
   event: "ready",
@@ -15,20 +17,26 @@ module.exports = {
   run: async (_, client) => {
     log(
       `Logged in as: ${client.user.displayName}. The client is now ready for work!`,
-      "info"
+      "bot"
     );
 
-    log(`Status has been set for ${client.user.displayName}!`, "info");
+    log(`Status has been set for ${client.user.displayName}!`, "bot");
+
     try {
-      const embed = new EmbedBuilder()
-        .setTitle("Online!")
-        .setDescription("Yippeee! Cloud has finally turned me on! oh wait... i mean.. started me..")
-        .setColor(config.colors.default)
+      let bot = await StartedSchema.findOne({ botID: client.user.id });
 
-      const channelID = '1191059794275094598';
-      const logss = client.channels.cache.get(channelID);
+      if (!bot) {
+        bot = new StartedSchema({
+          botID: client.user.id,
+          startedTimes: 0,
+        })
+      }
 
-      logss.send({ embeds: [ embed ] })
+      bot.startedTimes += 1;
+
+      await bot.save();
+
+      log(`The bot has been started for the ${bot.startedTimes.toString()}. time!`, `bot`);
     } catch (error) {
       log(`Oops! Something went wrong! Error: ${error}`, "err");
     }

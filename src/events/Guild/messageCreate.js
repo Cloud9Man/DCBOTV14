@@ -1,10 +1,24 @@
 const { ChannelType, Message } = require("discord.js");
 const config = require("../../config");
 const { log } = require("../../functions");
-const GuildSchema = require("../../schemas/GuildSchema");
 const ExtendedClient = require("../../class/ExtendedClient");
 
+//XP utils
+const calculateLevelXP = require('../../calculateLevelXP');
+
+//Schemas
+const GuildSchema = require("../../schemas/GuildSchema");
+const LevelSchema = require("../../schemas/LevelSchema");
+
 const cooldown = new Map();
+
+const cooldowns = new Set();
+
+function getRandomXP(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 module.exports = {
   event: "messageCreate",
@@ -17,10 +31,61 @@ module.exports = {
   run: async (client, message) => {
     if (message.author.bot || message.channel.type === ChannelType.DM) return;
 
-    log(
-      `${message.author.displayName} (ID: ${message.author.id}) sent a message: "${message.content}"!`,
-      "info"
-    );
+    log(`${message.author.displayName} [ID: ${message.author.id} | Username: ${message.author.username}] sent a message: "${message.content}"`, "server");
+
+    //XP AND LEVEL
+
+    const xpToGive = getRandomXP(1, 15);
+
+    try {
+      if (cooldowns.has(message.author.id)) return;
+
+      const schemaObject = {
+        userId: message.author.id,
+        guildId: message.guild.id
+      }
+
+      const levelProfile = await LevelSchema.findOne(schemaObject)
+
+      if (levelProfile) {
+        levelProfile.xp += xpToGive;
+
+        if (levelProfile.xp > calculateLevelXP(levelProfile.level)) {
+          levelProfile.xp = 0;
+          levelProfile.level += 1;
+
+          message.channel.send(`Congrats <@${message.author.id}>! You have leveled up to level __**${levelProfile.level}**__!`)
+
+          /*cooldowns.add(message.author.id);
+          setTimeout(() => {
+            cooldowns.delete(message.author.id);
+          }, 60000)*/
+        }
+
+        await levelProfile.save().catch((e) => {
+          log(`An error occured when saving the level. Error: ${e}`, 'err')
+          return;
+        });
+      } else {
+        const newLevelProfile = new LevelSchema({
+          userId: message.author.id,
+          guildId: message.guild.id,
+          xp: xpToGive,
+        })
+
+        cooldowns.add(message.author.id);
+        setTimeout(() => {
+          cooldowns.delete(message.author.id);
+        }, 60000)
+
+        await newLevelProfile.save()
+      }
+    } catch (error) {
+      log(`An error occured when giving XP. Error: ${error}`, 'err');
+      return;
+    }
+
+    //PREFIX AND COMMANDS
 
     if (!config.handler.commands.prefix) return;
 
@@ -58,8 +123,8 @@ module.exports = {
           await message.reply({
             content:
               config.messageSettings.notHasPermissionMessage !== undefined &&
-              config.messageSettings.notHasPermissionMessage !== null &&
-              config.messageSettings.notHasPermissionMessage !== ""
+                config.messageSettings.notHasPermissionMessage !== null &&
+                config.messageSettings.notHasPermissionMessage !== ""
                 ? config.messageSettings.notHasPermissionMessage
                 : "You do not have the permission to use this command.",
           });
@@ -73,8 +138,8 @@ module.exports = {
               await message.reply({
                 content:
                   config.messageSettings.developerMessage !== undefined &&
-                  config.messageSettings.developerMessage !== null &&
-                  config.messageSettings.developerMessage !== ""
+                    config.messageSettings.developerMessage !== null &&
+                    config.messageSettings.developerMessage !== ""
                     ? config.messageSettings.developerMessage
                     : "You are not authorized to use this command",
               });
@@ -88,8 +153,8 @@ module.exports = {
           await message.reply({
             content:
               config.messageSettings.nsfwMessage !== undefined &&
-              config.messageSettings.nsfwMessage !== null &&
-              config.messageSettings.nsfwMessage !== ""
+                config.messageSettings.nsfwMessage !== null &&
+                config.messageSettings.nsfwMessage !== ""
                 ? config.messageSettings.nsfwMessage
                 : "The current channel is not a NSFW channel.",
           });
@@ -125,8 +190,8 @@ module.exports = {
               await message.reply({
                 content:
                   config.messageSettings.cooldownMessage !== undefined &&
-                  config.messageSettings.cooldownMessage !== null &&
-                  config.messageSettings.cooldownMessage !== ""
+                    config.messageSettings.cooldownMessage !== null &&
+                    config.messageSettings.cooldownMessage !== ""
                     ? config.messageSettings.cooldownMessage
                     : `Slow down broski. There is a ${command.structure?.cooldown} second cooldown left.`,
               });
@@ -144,7 +209,8 @@ module.exports = {
 
         command.run(client, message, args);
       } catch (error) {
-        log(`Uh oh! An error occured: ${error}`, "err");
+        log(`Whoops! An error occured in ${__filename}. Error: ${error}`, 'err');
+        return;
       }
     }
   },

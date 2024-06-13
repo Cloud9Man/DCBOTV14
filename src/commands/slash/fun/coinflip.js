@@ -2,6 +2,8 @@ const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = requi
 const ExtendedClient = require('../../../class/ExtendedClient');
 const config = require('../../../config');
 
+const { log } = require('../../../functions')
+
 module.exports = {
     structure: new SlashCommandBuilder()
         .setName('coinflip')
@@ -14,21 +16,25 @@ module.exports = {
      * @param {ChatInputCommandInteraction} interaction 
      */
     run: async (client, interaction) => {
+        try {
+            answers = ['Heads', 'Tails'];
 
-        answers = ['Heads', 'Tails'];
+            const message = answers[Math.floor(Math.random() * answers.length)];
 
-        const message = answers[Math.floor(Math.random() * answers.length)];
+            const coinEmbed = new EmbedBuilder()
+                .setTitle('Coin Flip')
+                .setDescription(`${interaction.user} flipped the coin`)
+                .setFields(
+                    { name: 'What did they flip?:', value: `**${message}**` }
+                )
+                .setColor(config.colors.default)
 
-        const coinEmbed = new EmbedBuilder()
-        .setTitle('Coin Flip')
-        .setDescription(`${interaction.user} flipped the coin`)
-        .setFields(
-            { name: 'What did they flip?:', value: `**${message}**`}
-        )
-        .setColor(config.colors.default)
-
-        await interaction.reply({
-            embeds: [coinEmbed]
-        });
+            await interaction.reply({
+                embeds: [coinEmbed]
+            });
+        } catch (error) {
+            log(`Whoops! An error occured in ${__filename}. Error: ${error}`, 'err');
+            return;
+        }
     }
 };

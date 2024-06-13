@@ -3,12 +3,17 @@ const config = require('../config');
 const commands = require("../handlers/commands");
 const events = require("../handlers/events");
 const deploy = require("../handlers/deploy");
+const contextMenu = require("../handlers/contextMenu");
 const mongoose = require("../handlers/mongoose");
 const components = require("../handlers/components");
 
+const { OpenAI } = require("openai");
+
 module.exports = class extends Client {
+
     collection = {
         interactioncommands: new Collection(),
+        contextMenuCommands: new Collection(),
         prefixcommands: new Collection(),
         aliases: new Collection(),
         components: {
@@ -18,6 +23,7 @@ module.exports = class extends Client {
         }
     };
     applicationcommandsArray = [];
+    applicationContextMenucommandsarray = [];
 
     constructor() {
         super({
@@ -40,8 +46,10 @@ module.exports = class extends Client {
 
         if (config.handler.mongodb.toggle) mongoose();
 
-        await this.login(process.env.CLIENT_TOKEN || config.client.token);
-
         if (config.handler.deploy) deploy(this, config);
+
+        if (config.handler.contextMenu) contextMenu(this, config);
+
+        await this.login(process.env.CLIENT_TOKEN || config.client.token);
     };
 };

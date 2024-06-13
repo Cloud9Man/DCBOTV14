@@ -1,10 +1,11 @@
 const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const ExtendedClient = require('../../../class/ExtendedClient');
+const Config = require('../../../config');
 const { time } = require('../../../functions');
 
 module.exports = {
     structure: new SlashCommandBuilder()
-        .setName('serverinfo')
+        .setName('server-info')
         .setDescription("Get info about the server"),
     /**
      * @param {ExtendedClient} client 
@@ -29,7 +30,7 @@ module.exports = {
                          text: `Requested by ${interaction.user.displayName}`,
                          iconURL: interaction.user.displayAvatarURL({ dynamic: true })
                     })
-                    .setColor('Blurple')
+                    .setColor(Config.colors.default)
             ]
         });
 

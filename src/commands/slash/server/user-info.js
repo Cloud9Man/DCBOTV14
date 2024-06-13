@@ -1,10 +1,11 @@
 const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const ExtendedClient = require('../../../class/ExtendedClient');
 const { time } = require('../../../functions');
+const Config = require('../../../config');
 
 module.exports = {
     structure: new SlashCommandBuilder()
-        .setName('userinfo')
+        .setName('user-info')
         .setDescription('Get a user\'s information.')
         .addUserOption((opt) =>
             opt.setName('user')
@@ -57,7 +58,7 @@ module.exports = {
                          text: `Requested by ${interaction.user.displayName}`,
                          iconURL: user.displayAvatarURL({ dynamic: true })
                     })
-                    .setColor('Blurple')
+                    .setColor(Config.colors.default)
             ]
         });
 

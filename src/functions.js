@@ -4,7 +4,7 @@ const chalk = require("chalk");
  * Logs a message with optional styling.
  *
  * @param {string} string - The message to log.
- * @param {'info' | 'err' | 'warn' | 'done' | undefined} style - The style of the log.
+ * @param {'info' | 'err' | 'warn' | 'done' | 'server' | 'bot' | undefined} style - The style of the log.
  */
 const log = (string, style) => {
   const styles = {
@@ -12,6 +12,8 @@ const log = (string, style) => {
     err: { prefix: chalk.red("[ERROR]"), logFunction: console.error },
     warn: { prefix: chalk.yellow("[WARNING]"), logFunction: console.warn },
     done: { prefix: chalk.green("[SUCCESS]"), logFunction: console.log },
+    server: { prefix: chalk.cyan("[SERVER]"), logFunction: console.log },
+    bot: { prefix: chalk.magenta("[BOT]"), logFunction: console.log },
   };
 
   const selectedStyle = styles[style] || { logFunction: console.log };

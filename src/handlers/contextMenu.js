@@ -14,18 +14,18 @@ module.exports = async (client) => {
 
   try {
     log(
-      "Started loading application commands... (this might take minutes!)",
+      "Started loading context menu commands... (this might take minutes!)",
       "warn"
     );
 
     await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID || config.client.id),
       {
-        body: client.applicationcommandsArray,
+        body: client.applicationContextMenucommandsarray,
       }
     );
 
-    log("Successfully loaded application commands to Discord API.", "done");
+    log("Successfully loaded context menu commands to Discord API.", "done");
   } catch (e) {
     log(`Unable to load application commands to Discord API. Error: ${e}`, "err");
   }

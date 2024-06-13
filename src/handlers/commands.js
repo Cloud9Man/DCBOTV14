@@ -28,7 +28,7 @@ module.exports = (client) => {
                             client.collection.aliases.set(alias, module.structure.name);
                         });
                     };
-                } else {
+                } else if (type === 'slash') {
                     if (!module.structure?.name || !module.run) {
                         log('Unable to load the command ' + file +' due to missing \'structure#name\' or/and \'run\' properties.', 'warn');
         
@@ -37,6 +37,15 @@ module.exports = (client) => {
 
                     client.collection.interactioncommands.set(module.structure.name, module);
                     client.applicationcommandsArray.push(module.structure);
+                } else if (type === 'context') {
+                    if (!module.structure?.name || !module.run) {
+                        log('Unable to load the command ' + file +' due to missing \'structure#name\' or/and \'run\' properties.', 'warn');
+        
+                        continue;
+                    };
+
+                    client.collection.contextMenuCommands.set(module.structure.name, module);
+                    client.applicationContextMenucommandsarray.push(module.structure);
                 };
 
                 log('Loaded new command: ' + file, 'info');
