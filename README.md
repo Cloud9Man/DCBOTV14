@@ -6,4 +6,4 @@
 
 # Code
 - I took the template from the bot from another person (my handlers were acting up).
-- The music control works on 'discord-player'. Since that was acting up and throwing more errors than hours I sleep, I looked at the come from some boys on the (showcase)[https://discord-player.js.org/showcase]. 
+- The music control works on 'discord-player'. Since that was acting up and throwing more errors than hours I sleep, I looked at the come from some boys on the showcase [https://discord-player.js.org/showcase]. 
